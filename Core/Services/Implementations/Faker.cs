@@ -74,6 +74,7 @@ namespace Core.Services.Implementations
         private object InstantiateObject(Type type, IEnumerable<ConstructorInfo> constructors)
         {
             foreach (var constructor in constructors)
+            {
                 try
                 {
                     var parameters = constructor.GetParameters()
@@ -85,8 +86,9 @@ namespace Core.Services.Implementations
                 catch
                 {
                 }
+            }
 
-            throw new Exception("Can't instantiate an object by any of its constructors.");
+            throw new ObjectInstantiationException("Can't instantiate an object by any of its constructors.");
         }
     }
 }
