@@ -41,7 +41,8 @@ namespace Core.Services.Implementations
 
         private void InstantiateProperties(Type type, object instantiatedObject)
         {
-            var properties = type.GetProperties();
+            var properties = type.GetProperties().Where(property =>
+                property.CanWrite && !property.IsSpecialName);
             foreach (var property in properties)
             {
                 var propertyValue = property.GetValue(instantiatedObject);
@@ -53,7 +54,8 @@ namespace Core.Services.Implementations
 
         private void InstantiateUninitializedFields(Type type, object instantiatedObject)
         {
-            var fields = type.GetFields();
+            var fields = type.GetFields().Where(field =>
+                field.IsPublic && !field.IsLiteral && !field.IsSpecialName);
             foreach (var field in fields)
             {
                 var fieldValue = field.GetValue(instantiatedObject);
@@ -74,7 +76,6 @@ namespace Core.Services.Implementations
         private object InstantiateObject(Type type, IEnumerable<ConstructorInfo> constructors)
         {
             foreach (var constructor in constructors)
-            {
                 try
                 {
                     var parameters = constructor.GetParameters()
@@ -86,7 +87,6 @@ namespace Core.Services.Implementations
                 catch
                 {
                 }
-            }
 
             throw new ObjectInstantiationException("Can't instantiate an object by any of its constructors.");
         }
