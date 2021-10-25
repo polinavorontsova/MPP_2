@@ -88,6 +88,15 @@ namespace Core.Services.Implementations
                 {
                 }
 
+            try
+            {
+                var baseType = type.BaseType;
+                if (baseType == typeof(ValueType) || baseType == typeof(Enum)) return Activator.CreateInstance(type);
+            }
+            catch
+            {
+            }
+
             throw new ObjectInstantiationException("Can't instantiate an object by any of its constructors.");
         }
     }
