@@ -8,7 +8,7 @@ namespace BooleanGenerator
     {
         public object Generate(GeneratorContext context)
         {
-            return context.Random.Next(1 << 1) == 1;
+            return context.Random.Next(2) == 1;
         }
 
         public bool CanGenerate(Type type)
