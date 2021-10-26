@@ -12,6 +12,7 @@ namespace Core.Services.Implementations
     public class Faker : IFaker
     {
         private readonly IEnumerable<IValueGenerator> _generators;
+        private readonly HashSet<Type> _usedTypes = new();
 
         public Faker()
         {
@@ -32,10 +33,14 @@ namespace Core.Services.Implementations
                 if (generator.CanGenerate(type))
                     return generator.Generate(new GeneratorContext(new Random(), type, this));
 
+            if (_usedTypes.Contains(type)) return null;
+
+            _usedTypes.Add(type);
             var constructors = GetTypeConstructors(type);
             var instantiatedObject = InstantiateObject(type, constructors);
             InstantiateUninitializedFields(type, instantiatedObject);
             InstantiateProperties(type, instantiatedObject);
+            _usedTypes.Remove(type);
             return instantiatedObject;
         }
 
