@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Core.Services;
-using Core.Services.Exceptions;
 using Core.Services.Implementations;
 using NUnit.Framework;
 
@@ -79,7 +78,7 @@ namespace FakerTests
         [Test]
         public void Create_ClassWithPrivateConstructorFail()
         {
-            Assert.Throws<ObjectInstantiationException>(() => _faker.Create<ClassWithPrivateConstructor>());
+            Assert.DoesNotThrow(() => _faker.Create<ClassWithPrivateConstructor>());
         }
 
         [Test]
@@ -140,6 +139,78 @@ namespace FakerTests
                     Assert.Null(item.a);
                 }
             });
+        }
+
+        [Test]
+        public void Create_UserWithListOfDogsWithOwnerCircularDependency()
+        {
+            Assert.DoesNotThrow(() =>
+            {
+                var result = _faker.Create<User>();
+                // Name faked
+                Assert.NotNull(result.name);
+                // Profile faked
+                Assert.NotNull(result.profile);
+                // Faker didn't change the money value
+                Assert.AreEqual(result.money, 10.5f);
+
+                // Dogs
+                var dogs = result.dogs;
+                Assert.NotZero(dogs.Count);
+                foreach (var dog in dogs)
+                {
+                    // Name faked
+                    Assert.NotNull(dog.name);
+                    // Owner is null to prevent circular dependency
+                    Assert.Null(dog.owner);
+                }
+
+
+                // Profile
+                // Address faked
+                Assert.NotNull(result.profile.address);
+            });
+        }
+
+        private class User
+        {
+            public int age;
+            public List<Dog> dogs;
+            public readonly float money = 10.5f;
+            public string name;
+            public Profile profile;
+        }
+
+        private class Dog
+        {
+            public string name;
+            public User owner;
+
+            public Dog(string name, User owner)
+            {
+            }
+
+            private Dog(string name)
+            {
+            }
+
+            private Dog()
+            {
+            }
+        }
+
+        private class Profile
+        {
+            public string address;
+
+            public Profile()
+            {
+            }
+
+            public Profile(int c)
+            {
+                throw new Exception();
+            }
         }
 
         private class ClassWithNoExplicitConstructor
