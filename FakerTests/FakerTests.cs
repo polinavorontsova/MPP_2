@@ -186,14 +186,6 @@ namespace FakerTests
             public string name;
             public User owner;
 
-            public Dog(string name, User owner)
-            {
-            }
-
-            private Dog(string name)
-            {
-            }
-
             private Dog()
             {
             }
